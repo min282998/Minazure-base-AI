@@ -1,49 +1,34 @@
 package com.example.addon;
 
-import com.example.addon.commands.CommandExample;
-import com.example.addon.hud.HudExample;
-import com.example.addon.modules.ModuleExample;
-import com.mojang.logging.LogUtils;
-import meteordevelopment.meteorclient.addons.GithubRepo;
-import meteordevelopment.meteorclient.addons.MeteorAddon;
-import meteordevelopment.meteorclient.commands.Commands;
-import meteordevelopment.meteorclient.systems.hud.Hud;
-import meteordevelopment.meteorclient.systems.hud.HudGroup;
-import meteordevelopment.meteorclient.systems.modules.Category;
-import meteordevelopment.meteorclient.systems.modules.Modules;
-import org.slf4j.Logger;
+import meteordevelopment.meteorclient.systems.modules.Module;
+import meteordevelopment.meteorclient.systems.modules.Categories;
+import meteordevelopment.meteorclient.events.world.BlockUpdateEvent;
+import meteordevelopment.orbit.EventHandler;
+import net.minecraft.block.Blocks;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.block.Block;
 
-public class AddonTemplate extends MeteorAddon {
-    public static final Logger LOG = LogUtils.getLogger();
-    public static final Category CATEGORY = new Category("Example");
-    public static final HudGroup HUD_GROUP = new HudGroup("Example");
-
-    @Override
-    public void onInitialize() {
-        LOG.info("Initializing Meteor Addon Template");
-
-        // Modules
-        Modules.get().add(new ModuleExample());
-
-        // Commands
-        Commands.add(new CommandExample());
-
-        // HUD
-        Hud.get().register(HudExample.INFO);
+public class ExampleAddon extends Module {
+    public ExampleAddon() {
+        // Tên Module sẽ hiển thị trong Menu Meteor là Minazure
+        super(Categories.World, "Minazure", "AI tự động dò tìm tọa độ Base người chơi.");
     }
 
-    @Override
-    public void onRegisterCategories() {
-        Modules.registerCategory(CATEGORY);
-    }
+    @EventHandler
+    private void onBlockUpdate(BlockUpdateEvent event) {
+        BlockPos pos = event.pos;
+        Block block = event.newState.getBlock();
 
-    @Override
-    public String getPackage() {
-        return "com.example.addon";
-    }
-
-    @Override
-    public GithubRepo getRepo() {
-        return new GithubRepo("MeteorDevelopment", "meteor-addon-template");
+        // Danh sách các khối "đặc trưng" của Base người chơi (Chest, Shulker, Spawner, v.v.)
+        if (block == Blocks.CHEST || 
+            block == Blocks.TRAPPED_CHEST || 
+            block == Blocks.BARREL || 
+            block == Blocks.SHULKER_BOX || 
+            block == Blocks.ENDER_CHEST ||
+            block == Blocks.SPAWNER) {
+            
+            // Thông báo tọa độ thẳng vào khung chat (chỉ mình bạn thấy)
+            info("🎯 [Minazure] Phát hiện vật phẩm Base tại: " + pos.getX() + ", " + pos.getY() + ", " + pos.getZ());
+        }
     }
 }
